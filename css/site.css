@@ -1,0 +1,37 @@
+.api-error,
+.api-message[role="alert"] {
+    color: #b42318;
+}
+
+.api-skeleton {
+    min-height: 3rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(90deg, #eee 25%, #f8f8f8 40%, #eee 60%);
+    background-size: 300% 100%;
+    animation: ramjicart-shimmer 1.3s infinite;
+}
+
+@keyframes ramjicart-shimmer {
+    to { background-position: -150% 0; }
+}
+
+.food-option-select {
+    width: 100%;
+    min-height: 42px;
+    margin: 8px 0;
+    padding: 8px;
+    border: 1px solid #dfe3e8;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.food-addon-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.food-addon-option input {
+    width: auto;
+}
