@@ -2,6 +2,7 @@
 <html lang="hi">
 <head>
     <link rel="stylesheet" href="css/site.css">
+    <script src="config.js"></script>
     <script src="js/config.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
@@ -590,6 +591,9 @@ async function loadOrder() {
                 `/api/customer/orders/${orderId}/payment-status`
             );
             const paymentData = await paymentResponse.json();
+            if (!paymentResponse.ok) {
+                throw new Error(paymentData.message || "Payment status could not be checked.");
+            }
             if (paymentData.status === "success") {
                 urlParams.delete("payment");
                 document.getElementById("orderMessage").textContent =
@@ -649,6 +653,9 @@ document.getElementById("retryCashfreePayment").addEventListener("click", async 
             });
         }
         const configResponse = await fetch("/api/config/public");
+        if (!configResponse.ok) {
+            throw new Error("Payment options could not be loaded. Please try again.");
+        }
         const config = await configResponse.json();
         const cashfree = window.Cashfree({ mode: config.cashfreeMode });
         await cashfree.checkout({

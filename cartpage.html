@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="css/site.css">
+    <script src="config.js"></script>
     <script src="js/config.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
@@ -1338,9 +1339,16 @@
 
         document.getElementById("clearCartButton").addEventListener("click", async function() {
             if (!confirm("Saare cart items hata dein?")) return;
-            const response = await fetch(cartApi);
-            const data = await response.json();
-            for (const item of data.items || []) await removeFromCart(item.id);
+            try {
+                const response = await fetch(cartApi);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || data.detail || "Cart could not be loaded.");
+                }
+                for (const item of data.items || []) await removeFromCart(item.id);
+            } catch (error) {
+                alert(error.message || "Cart could not be cleared. Please try again.");
+            }
         });
         loadCart();
 

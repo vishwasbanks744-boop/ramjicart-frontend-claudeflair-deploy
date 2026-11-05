@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="css/site.css">
+    <script src="config.js"></script>
     <script src="js/config.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
@@ -114,14 +115,18 @@
     async function loadPaymentConfig() {
         try {
             const response = await fetch("/api/config/public");
+            if (!response.ok) {
+                throw new Error("Payment options could not be loaded. Please try again later.");
+            }
             cashfreeConfig = await response.json();
             if (cashfreeConfig.cashfreeEnabled) {
                 document.getElementById("paymentNote").textContent =
                     "Cashfree will collect the commission and applicable fees now. The remaining amount is payable at handover.";
                 payButton.textContent = "Pay fees with Cashfree";
             }
-        } catch (_) {
+        } catch (error) {
             cashfreeConfig = { cashfreeEnabled: false };
+            message.textContent = error.message || "Payment options could not be loaded. Please try again later.";
         }
     }
 

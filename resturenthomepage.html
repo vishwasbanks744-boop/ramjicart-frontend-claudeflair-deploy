@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="css/site.css">
+    <script src="config.js"></script>
     <script src="js/config.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
@@ -2316,7 +2317,18 @@ async function editMenuProduct(product) {
     if (categoryName === null) return;
     const stockQuantity = prompt("Stock quantity (blank = not tracked)", product.stockQuantity ?? "");
     if (stockQuantity === null) return;
-    const category = (await (await fetch("/api/customer/categories")).json()).find(item => item.name.toLowerCase() === categoryName.trim().toLowerCase());
+    let category;
+    try {
+        const categoriesResponse = await fetch("/api/customer/categories");
+        const categories = await categoriesResponse.json();
+        if (!categoriesResponse.ok) {
+            throw new Error(categories.message || "Categories could not be loaded.");
+        }
+        category = categories.find(item => item.name.toLowerCase() === categoryName.trim().toLowerCase());
+    } catch (error) {
+        alert(error.message || "Categories could not be loaded.");
+        return;
+    }
     if (!category) { alert("Select one of the listed categories."); return; }
     const variants = variantsText.trim() ? variantsText.trim().split(/\r?\n/).map(line => { const [optionName, ...amount] = line.split(":"); return {name: optionName.trim(), price: amount.join(":").trim()}; }) : [];
     const addons = addonsText.trim() ? addonsText.trim().split(/\r?\n/).map(line => { const [optionName, ...amount] = line.split(":"); return {name: optionName.trim(), price: amount.join(":").trim()}; }) : [];
