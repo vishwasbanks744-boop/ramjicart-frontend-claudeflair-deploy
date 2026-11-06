@@ -47,10 +47,10 @@
                 }
                 const version = encodeURIComponent(config.firebaseSdkVersion || "13.1.0");
                 const appSdk = await import(
-                    "https://www.gstatic.com/firebasejs/" + version + "firebase-app.js"
+                    "https://www.gstatic.com/firebasejs/" + version + "/firebase-app.js"
                 );
                 const authSdk = await import(
-                    "https://www.gstatic.com/firebasejs/" + version + "firebase-auth.js"
+                    "https://www.gstatic.com/firebasejs/" + version + "/firebase-auth.js"
                 );
                 const app = appSdk.getApps().length
                     ? appSdk.getApp()
