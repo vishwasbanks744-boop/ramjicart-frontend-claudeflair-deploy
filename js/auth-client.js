@@ -30,10 +30,7 @@
             configPromise = fetch("/api/config/public", { credentials: "same-origin" })
                 .then(function(response) {
                     if (!response.ok) throw new Error("Could not load sign-in configuration.");
-                    return response.json().then(function(config) {
-                        config.firebase = window.RAMJICART_FIREBASE_CONFIG;
-                        return config;
-                    });
+                    return response.json();
                 });
         }
         return configPromise;
@@ -42,8 +39,17 @@
     async function getFirebase() {
         if (!firebasePromise) {
             firebasePromise = clientConfig().then(async function(config) {
-                if (!config.firebaseEnabled || !config.firebase) {
+                if (!config || !config.firebaseEnabled || !config.firebase) {
                     throw new Error("Firebase sign-in is not enabled.");
+                }
+                const firebaseConfig = config.firebase;
+                const requiredConfigKeys = ["apiKey", "authDomain", "projectId", "appId"];
+                if (typeof firebaseConfig !== "object" || Array.isArray(firebaseConfig)
+                        || requiredConfigKeys.some(function(key) {
+                            return typeof firebaseConfig[key] !== "string"
+                                || !firebaseConfig[key].trim();
+                        })) {
+                    throw new Error("Firebase sign-in configuration is invalid.");
                 }
                 const version = encodeURIComponent(config.firebaseSdkVersion || "13.1.0");
                 const appSdk = await import(
@@ -52,9 +58,17 @@
                 const authSdk = await import(
                     "https://www.gstatic.com/firebasejs/" + version + "/firebase-auth.js"
                 );
-                const app = appSdk.getApps().length
-                    ? appSdk.getApp()
-                    : appSdk.initializeApp(config.firebase);
+                let app;
+                if (appSdk.getApps().length) {
+                    app = appSdk.getApp();
+                } else {
+                    console.log(
+                        "Firebase config keys and apiKey length:",
+                        Object.keys(firebaseConfig),
+                        firebaseConfig.apiKey.length
+                    );
+                    app = appSdk.initializeApp(firebaseConfig);
+                }
                 firebaseAuth = authSdk.getAuth(app);
                 firebaseMethods = authSdk;
                 return firebaseAuth;
